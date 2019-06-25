@@ -1,4 +1,5 @@
 import * as Discord from "discord.js"
+import * as signale from "signale";
 
 import {ICommand} from "./command/command";
 import PingCommand from "./command/impl/ping";
@@ -12,7 +13,7 @@ interface IBootstrapper {
     commands: ICommand[]
     clientInstance: Discord.Client
 
-    start(clientInstance: Discord.Client, config: IConfig): void
+    start(clientInstance: Discord.Client, loggerInstance: signale, config: IConfig): void
 }
 
 export class Bootstrapper implements IBootstrapper {
@@ -23,14 +24,22 @@ export class Bootstrapper implements IBootstrapper {
         this.commands.push(new PingCommand());
     }
 
-    public start(clientInstance: Discord.Client, config: IConfig): void {
+    public start(clientInstance: Discord.Client, loggerInstance: signale, config: IConfig): void {
         this.clientInstance = clientInstance;
         this.commands = [];
 
         this.registerCommands();
 
+        clientInstance.on("error", (error) => {
+            loggerInstance.fatal(error);
+        });
+
+        process.on("unhandledRejection", (error) => {
+            loggerInstance.fatal(error);
+        });
+
         clientInstance.on("ready", () => {
-            console.log(clientInstance.user.tag);
+            loggerInstance.success(`I am ready! (${clientInstance.user.tag})`)
         });
 
         clientInstance.on("message", (message) => {
@@ -40,7 +49,7 @@ export class Bootstrapper implements IBootstrapper {
 
             for(let command of this.commands) {
                 if(command.syntax == args[0]) {
-                    command.action(clientInstance, message, args);
+                    command.action(clientInstance, loggerInstance, message, args);
                 }
             }
         });
