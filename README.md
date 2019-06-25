@@ -1,6 +1,6 @@
 <div align="center">
 <img width="256", height="128" src="resources/logo-transparent-cropped.png" alt="Gatekeeper logo">
-<h4>Discord moderation bot. <span style="color: #7289DA">#DiscordHackWeek</span></h4>
+<h4>Discord moderation bot. #DiscordHackWeek</h4>
 
 [![forthebadge](https://forthebadge.com/images/badges/check-it-out.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)

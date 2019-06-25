@@ -1,5 +1,5 @@
 import * as Discord from "discord.js"
-import * as signale from "signale";
+import loggerInstance from "./logger";
 import * as fs from "fs";
 
 import {ICommand} from "./command/command";
@@ -13,50 +13,47 @@ export interface IConfig {
 interface IBootstrapper {
     commands: ICommand[]
     clientInstance: Discord.Client
-    loggerInstance: signale
 
-    start(clientInstance: Discord.Client, loggerInstance: signale, config: IConfig): void
+    start(clientInstance: Discord.Client, config: IConfig): void
 }
 
 export class Bootstrapper implements IBootstrapper {
     commands: ICommand[];
     clientInstance: Discord.Client;
-    loggerInstance: signale;
 
     private registerCommands() {
         try {
-            this.loggerInstance.pending("Running registerCommands();");
+            loggerInstance.pending("Running registerCommands();");
             fs.readdir(Path.resolve(__dirname, "command", "impl"), (error, files) => {
                 for (const command of files) {
                     const requiredCommand = require(Path.resolve(__dirname, "command", "impl", command)).default;
                     const commandClass = new requiredCommand() as ICommand;
                     this.commands.push(commandClass);
-                    this.loggerInstance.success(`${command} loaded.`);
+                    loggerInstance.success(`${command} loaded.`);
                 }
-                this.loggerInstance.complete("registerCommands(); completed.")
+                loggerInstance.complete("registerCommands(); completed.")
             });
         } catch (error) {
-            this.loggerInstance.fatal(error);
+            loggerInstance.fatal(error);
         }
     }
 
-    public start(clientInstance: Discord.Client, loggerInstance: signale, config: IConfig): void {
+    public start(clientInstance: Discord.Client, config: IConfig): void {
         this.clientInstance = clientInstance;
-        this.loggerInstance = loggerInstance;
         this.commands = [];
 
         this.registerCommands();
 
         clientInstance.on("error", (error) => {
-            this.loggerInstance.fatal(error);
+            loggerInstance.fatal(error);
         });
 
         process.on("unhandledRejection", (error) => {
-            this.loggerInstance.fatal(error);
+            loggerInstance.fatal(error);
         });
 
         clientInstance.on("ready", () => {
-            this.loggerInstance.success(`I am ready! (${clientInstance.user.tag})`);
+            loggerInstance.success(`I am ready! (${clientInstance.user.tag})`);
         });
 
         clientInstance.on("message", (message) => {
@@ -66,7 +63,7 @@ export class Bootstrapper implements IBootstrapper {
 
             for (let command of this.commands) {
                 if (command.syntax == args[0]) {
-                    command.action(clientInstance, loggerInstance, message, args);
+                    command.action(clientInstance, message, args);
                 }
             }
         });
