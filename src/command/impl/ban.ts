@@ -16,9 +16,10 @@ export default class BanCommand implements ICommand {
         if (!message.member.hasPermission("BAN_MEMBERS")) return;
 
         const memberToBan = message.mentions.members.first();
+        const daysToDelete: number = parseInt(args[2]);
         args.splice(0, 3);
         memberToBan.ban({
-            days: parseInt(args[2]),
+            days: daysToDelete,
             reason: `${args.join(" ")} (command invoked by: ${message.author.tag})`
         });
     }
