@@ -3,6 +3,7 @@ import * as signale from "signale";
 import * as fs from "fs";
 
 import {ICommand} from "./command/command";
+import * as Path from "path";
 
 export interface IConfig {
     token: string;
@@ -23,20 +24,20 @@ export class Bootstrapper implements IBootstrapper {
     loggerInstance: signale;
 
     private registerCommands() {
-        this.loggerInstance.pending("Running registerCommands();");
-        const commands = fs.readdirSync(`${__dirname}/command/impl/`);
-        commands.forEach((command) => {
-            try {
-                const requiredCommand = require(`${__dirname}/command/impl/${command}`).default;
-                const commandClass = new requiredCommand() as ICommand;
-                this.commands.push(commandClass);
-
-                this.loggerInstance.success(`${command} loaded.`);
-            } catch (error) {
-                this.loggerInstance.fatal(error);
-            }
-        });
-        this.loggerInstance.complete("registerCommands(); completed.")
+        try {
+            this.loggerInstance.pending("Running registerCommands();");
+            fs.readdir(Path.resolve(__dirname, "command", "impl"), (error, files) => {
+                for (const command of files) {
+                    const requiredCommand = require(Path.resolve(__dirname, "command", "impl", command)).default;
+                    const commandClass = new requiredCommand() as ICommand;
+                    this.commands.push(commandClass);
+                    this.loggerInstance.success(`${command} loaded.`);
+                }
+                this.loggerInstance.complete("registerCommands(); completed.")
+            });
+        } catch (error) {
+            this.loggerInstance.fatal(error);
+        }
     }
 
     public start(clientInstance: Discord.Client, loggerInstance: signale, config: IConfig): void {
