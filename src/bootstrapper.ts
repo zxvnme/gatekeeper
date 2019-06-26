@@ -44,14 +44,6 @@ export class Bootstrapper implements IBootstrapper {
 
         this.registerCommands();
 
-        clientInstance.on("error", (error) => {
-            loggerInstance.fatal(error);
-        });
-
-        process.on("unhandledRejection", (error) => {
-            loggerInstance.fatal(error);
-        });
-
         clientInstance.on("ready", () => {
             loggerInstance.success(`I am ready! (${clientInstance.user.tag})`);
         });
@@ -66,6 +58,14 @@ export class Bootstrapper implements IBootstrapper {
                     command.action(clientInstance, message, args);
                 }
             }
+        });
+
+        clientInstance.on("error", (error) => {
+            loggerInstance.fatal(error);
+        });
+
+        process.on("unhandledRejection", (error) => {
+            loggerInstance.fatal(error);
         });
 
         clientInstance.login(config.token)
