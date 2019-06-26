@@ -1,6 +1,7 @@
 import {ICommand} from "../command";
 
 import * as Discord from "discord.js"
+import {Checks} from "../../utils/checks";
 
 export default class KickCommand implements ICommand {
 
@@ -13,7 +14,7 @@ export default class KickCommand implements ICommand {
     syntax: string;
 
     action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
-        if (!message.member.hasPermission("KICK_MEMBERS")) return;
+        if (!Checks.permissionCheck(message, "KICK_MEMBERS")) return;
 
         const memberToKick = message.mentions.members.first();
         args.splice(0, 2);

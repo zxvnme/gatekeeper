@@ -1,6 +1,7 @@
 import {ICommand} from "../command";
 
 import * as Discord from "discord.js"
+import {Checks} from "../../utils/checks";
 
 export default class BanCommand implements ICommand {
 
@@ -13,7 +14,7 @@ export default class BanCommand implements ICommand {
     syntax: string;
 
     action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
-        if (!message.member.hasPermission("BAN_MEMBERS")) return;
+        if (!Checks.permissionCheck(message, "BAN_MEMBERS")) return;
 
         const memberToBan = message.mentions.members.first();
         const daysToDelete: number = parseInt(args[2]);

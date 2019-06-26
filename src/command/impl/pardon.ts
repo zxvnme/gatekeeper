@@ -1,6 +1,7 @@
 import {ICommand} from "../command";
 
 import * as Discord from "discord.js"
+import {Checks} from "../../utils/checks";
 
 export default class PardonCommand implements ICommand {
 
@@ -13,7 +14,7 @@ export default class PardonCommand implements ICommand {
     syntax: string;
 
     action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
-        if (!message.member.hasPermission("ADMINISTRATOR")) return;
+        if (!Checks.permissionCheck(message, "BAN_MEMBERS")) return;
 
         message.guild.fetchBans().then(bans => {
             const bannedUser = bans.find(bannedUser => bannedUser.tag === args[1]);
