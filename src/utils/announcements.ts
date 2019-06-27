@@ -61,7 +61,7 @@ export class Announcements {
     }
 
     public static info(discordMessageInstance: Discord.Message, title: string, description?: string, deleteAfter?: boolean) {
-        const embed = new Discord.RichEmbed().setColor(Colors.INFO_LIGHTBLUE).setTitle(`ℹ️️ ${title}`);
+        const embed = new Discord.RichEmbed().setColor(Colors.INFO_LIGHTBLUE).setTitle(`🛈️️ ${title}`);
 
         if (description) {
             embed.setDescription(description);

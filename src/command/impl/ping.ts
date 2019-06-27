@@ -16,11 +16,6 @@ export default class PingCommand implements ICommand {
     args: string;
 
     action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
-        Announcements.error(message, "test", "test", false);
-        Announcements.success(message, "test", "test", false);
-        message.channel.send("Pinging...").then(sent => {
-            // @ts-ignore
-            sent.edit(`Pong! ${Math.round(sent.createdTimestamp - message.createdTimestamp).toString()}ms`);
-        });
+        Announcements.info(message, "Pong!", `Average heartbeat ping of the websocket is: ${clientInstance.ping}ms`, false);
     }
 }
