@@ -3,10 +3,10 @@ import * as Discord from "discord.js"
 import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
 
-export default class PardonCommand implements ICommand {
+export default class SlowmodeCommand implements ICommand {
 
     constructor() {
-        this.description = "Sets slow mode for the guild.";
+        this.description = "Sets slowmode for the guild.";
         this.syntax = "slowmode";
         this.args = "[slowmodeValue: number]";
     }
