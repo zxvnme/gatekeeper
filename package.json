@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "discord.js": "^11.5.1",
+    "mariadb": "^2.0.5",
     "signale": "^1.4.0"
   },
   "devDependencies": {

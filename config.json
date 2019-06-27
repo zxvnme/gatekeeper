@@ -1,4 +1,7 @@
 {
   "token": "token",
+  "databaseHost": "localhost",
+  "databaseUser": "root",
+  "databasePassword": "root",
   "defaultPrefix": "g!"
 }
