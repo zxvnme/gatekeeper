@@ -1,6 +1,6 @@
-import {ICommand} from "../command";
-
 import * as Discord from "discord.js"
+
+import {ICommand} from "../command";
 import {Announcements} from "../../utils/announcements";
 
 export default class PingCommand implements ICommand {

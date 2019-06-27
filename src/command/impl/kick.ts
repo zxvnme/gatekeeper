@@ -1,6 +1,6 @@
-import {ICommand} from "../command";
-
 import * as Discord from "discord.js"
+
+import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
 
 export default class KickCommand implements ICommand {

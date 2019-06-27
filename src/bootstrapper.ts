@@ -1,9 +1,9 @@
 import * as Discord from "discord.js"
-import loggerInstance from "./logger";
 import * as fs from "fs";
+import * as Path from "path";
 
 import {ICommand} from "./command/command";
-import * as Path from "path";
+import loggerInstance from "./logger";
 
 export interface IConfig {
     token: string;
