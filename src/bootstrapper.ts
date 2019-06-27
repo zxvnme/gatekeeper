@@ -4,6 +4,7 @@ import * as Path from "path";
 
 import {ICommand} from "./command/command";
 import {Globals} from "./globals";
+import {Announcements} from "./utils/announcements";
 
 export interface IConfig {
     token: string;
@@ -52,8 +53,8 @@ export class Bootstrapper implements IBootstrapper {
                 }
                 Globals.databaseConnection.query("USE gatekeeper");
                 Globals.loggerInstance.info("Using database gateekeeper.");
-                Globals.loggerInstance.pending("Creating or detecting table guildconfiguration with guildid and filter variables if not detected.");
-                Globals.databaseConnection.query("CREATE TABLE IF NOT EXISTS `guildconfiguration` (`guildid` TEXT NULL DEFAULT NULL, `filter` INT(1) NULL DEFAULT NULL)", (error, response) => {
+                Globals.loggerInstance.pending("Creating or detecting table guildconfiguration with guildid, logschannelid and filter variables if not detected.");
+                Globals.databaseConnection.query("CREATE TABLE IF NOT EXISTS `guildconfiguration` (`guildid` TEXT NULL DEFAULT NULL, `logschannelid` TEXT NULL DEFAULT NULL, `filter` INT(1) NULL DEFAULT NULL)", (error, response) => {
                     if (response.affectedRows > 0) {
                         Globals.loggerInstance.complete("Table creation sucessful.")
                     } else {
@@ -80,6 +81,19 @@ export class Bootstrapper implements IBootstrapper {
         });
 
         clientInstance.on("message", message => {
+            if (message.author.bot) return;
+
+            Globals.databaseConnection.query("SELECT * from guildconfiguration", (error, response, meta) => {
+                for(const guildConfiguration of response) {
+                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.filter == 1) {
+                        if (Globals.filterInstance.isProfane(message.content)) {
+                            message.delete();
+                            Announcements.warning(message, `${message.author.username}, you've used one of the bad words! Keep your language nice...`, undefined, true)
+                        }
+                    }
+                }
+            });
+
             if (!message.content.startsWith(config.defaultPrefix)) return;
 
             let args = message.content.substring(config.defaultPrefix.length).split(" ");
@@ -97,7 +111,7 @@ export class Bootstrapper implements IBootstrapper {
 
         clientInstance.on("guildCreate", guild => {
 
-            Globals.databaseConnection.query("INSERT INTO guildconfiguration(guildid, filter) value (?, ?)", [guild.id, 0]);
+            Globals.databaseConnection.query("INSERT INTO guildconfiguration(guildid, logschannelid, filter) value (?, ?, ?)", [guild.id, "x", 0]);
 
             const embed = new Discord.RichEmbed()
                 .setThumbnail(clientInstance.user.avatarURL)
@@ -107,7 +121,7 @@ export class Bootstrapper implements IBootstrapper {
                 .addField("Why does i received this message?!", `Because it seems that you are owner of ${guild.name}`, true)
                 .addField("Where can I see list of commands or smth?", "Commands documentation and feature list " +
                     "can be found at https://github.com/zxvnme/Gatekeeper/blob/master/README.md", true)
-                .setFooter("Created by zxvnme#2598 under MIT License. https://github.com/zxvnme");
+                .setFooter("Created by zxvnme#2598 under LGPL 2.1 License. https://github.com/zxvnme");
 
             guild.members.get(guild.ownerID).send(embed);
         });
