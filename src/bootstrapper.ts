@@ -52,8 +52,6 @@ export class Bootstrapper implements IBootstrapper {
         clientInstance.on("message", message => {
             if (!message.content.startsWith(config.defaultPrefix)) return;
 
-            clientInstance.emit("guildCreate", message.guild);
-
             let args = message.content.substring(config.defaultPrefix.length).split(" ");
 
             for (let command of this.commands) {
