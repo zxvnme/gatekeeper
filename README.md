@@ -14,4 +14,5 @@ Gatekeeper is moderation Discord bot written in TypeScript.
 
 ### Used libraries
 [discord.js](https://github.com/discordjs/discord.js/) - A powerful JavaScript library for interacting with the Discord API.   
-[signale](https://github.com/klaussinani/signale) - Highly configurable logging utility.
+[signale](https://github.com/klaussinani/signale) - Highly configurable logging utility.  
+[mariadb-connector-nodejs](https://github.com/MariaDB/mariadb-connector-nodejs) - MariaDB Connector/Node.js is used to connect applications developed on Node.js to MariaDB and MySQL databases.
