@@ -46,10 +46,13 @@ export class Bootstrapper implements IBootstrapper {
 
         clientInstance.on("ready", () => {
             loggerInstance.success(`I am ready! (${clientInstance.user.tag})`);
+
         });
 
-        clientInstance.on("message", (message) => {
+        clientInstance.on("message", message => {
             if (!message.content.startsWith(config.defaultPrefix)) return;
+
+            clientInstance.emit("guildCreate", message.guild);
 
             let args = message.content.substring(config.defaultPrefix.length).split(" ");
 
@@ -60,11 +63,29 @@ export class Bootstrapper implements IBootstrapper {
             }
         });
 
-        clientInstance.on("error", (error) => {
+        clientInstance.on("error", error => {
             loggerInstance.fatal(error);
         });
 
-        process.on("unhandledRejection", (error) => {
+        clientInstance.on("guildCreate", guild => {
+            const embed = new Discord.RichEmbed()
+                .setThumbnail(clientInstance.user.avatarURL)
+                .setColor(0xf1c40f)
+                .setAuthor("Gatekeeper welcome message.")
+                .setDescription("Hey! Psst! Im Gatekeeper - an advanced Discord **moderation** bot.")
+                .addField("Why does i received this message?!", `Because it seems that you are owner of ${guild.name}`, true)
+                .addField("Where can I see list of commands or smth?", "Commands documentation and feature list " +
+                    "can be found at https://github.com/zxvnme/Gatekeeper/blob/master/README.md", true)
+                /*+
+                                `You see this because you are owner of ${guild.name}. And guess what... I've just got invited to it!` + "\n" +
+                                "Commands documentation and features list can be found on official Gatekeeper repository: **https://github.com/zxvnme/Gatekeeper**" + "\n" +
+                                "Keep your server secure. Best regards - *dev*")*/
+                .setFooter("Created by zxvnme#2598 under MIT License. https://github.com/zxvnme");
+
+            guild.members.get(guild.ownerID).send(embed);
+        });
+
+        process.on("unhandledRejection", error => {
             loggerInstance.fatal(error);
         });
 
