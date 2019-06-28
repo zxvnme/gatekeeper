@@ -11,7 +11,7 @@ export default class GuildCreateEvent implements IEvent {
     name: string;
 
     override(client, guild): void {
-        Globals.databaseConnection.query("INSERT INTO guildconfiguration(guildid, logschannelid, filter) value (?, ?, ?)", [guild.id, "x", 0]);
+        Globals.databaseConnection.query("INSERT INTO guildconfiguration(guildid, logschannelid, filter) value (?, ?, ?)", [guild.id, "none", 0]);
 
         const embed = new Discord.RichEmbed()
             .setThumbnail(Globals.clientInstance.user.avatarURL)

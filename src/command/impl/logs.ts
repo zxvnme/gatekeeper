@@ -22,14 +22,23 @@ export default class LogsCommand implements ICommand {
 
         if (!Checks.argsCheck(message, this, args)) return;
 
-        const logsChannel = message.guild.channels.get(args[1]);
-
-        Globals.databaseConnection.query(`UPDATE guildconfiguration SET logschannelid=${logsChannel.id} WHERE guildid=${message.guild.id}`, (error, response) => {
-            if(response.affectedRows > 0) {
-                Announcements.success(message, `Successfully set logs channel to **#${logsChannel.name}**.`);
+        try {
+            if (args[1] == "off") {
+                Globals.databaseConnection.query(`UPDATE guildconfiguration SET logschannelid='none' WHERE guildid=${message.guild.id}`, (error, response) => {
+                    if (response.affectedRows > 0) {
+                        Announcements.success(message, `Successfully disabled logs.`);
+                    }
+                });
+            } else {
+                const logsChannel = message.guild.channels.get(args[1]).id;
+                Globals.databaseConnection.query(`UPDATE guildconfiguration SET logschannelid=${logsChannel} WHERE guildid=${message.guild.id}`, (error, response) => {
+                    if (response.affectedRows > 0) {
+                        Announcements.success(message, `Successfully set logs channel to:`, `<#${logsChannel}>`);
+                    }
+                });
             }
-        });
-
-        //Announcements.success(message, `Successfully ${(logsState == 1) ? "enabled" : "disabled"} bad words filter on this server.`);
+        } catch (error) {
+            Globals.loggerInstance.fatal(error);
+        }
     }
 }
