@@ -21,6 +21,8 @@ export default class GuildCreateEvent implements IEvent {
             .addField("Why does i received this message?!", `Because it seems that you are owner of ${guild.name}`, true)
             .addField("Where can I see list of commands or smth?", "Commands documentation and feature list " +
                 "can be found at https://github.com/zxvnme/Gatekeeper/blob/master/README.md", true)
+            .addField("... or get help on your guild!", "Use `g!help` command for it.")
+            .addField("UsageChecker™", "Use `g!usage [command]`")
             .setFooter("Created by zxvnme#2598 under LGPL 2.1 License. https://github.com/zxvnme");
 
         await guild.members.get(guild.ownerID).send(embed);
