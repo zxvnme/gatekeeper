@@ -17,3 +17,4 @@ There are list of all Gatekeeper command.
 | mute     |               [memberToMute: mention] [time?: number(minutes)] |
 | unmute   |                                      [memberToUnmute: mention] |
 | ping     |                                                           none |
+| recover  |                                                           none |

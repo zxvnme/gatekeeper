@@ -17,6 +17,7 @@ Gatekeeper is advanced moderation Discord bot written in TypeScript. Its main ad
 * Simple usage.
 * Built-in bad words filter.
 * Useful commands that will help to moderate your server.
+* Advanced chat logging utility.
 * Code scalability
 * Open sourced
 #
