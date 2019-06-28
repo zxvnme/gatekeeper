@@ -1,7 +1,7 @@
 import * as Discord from "discord.js"
 
 import {IEvent} from "../event";
-import {Globals} from "../../globals";
+import {Globals, ICollectedMessage} from "../../globals";
 import {Announcements} from "../../utils/announcements";
 
 export default class MessageEvent implements IEvent {
@@ -13,6 +13,13 @@ export default class MessageEvent implements IEvent {
 
     async override(client, message): Promise<void> {
         if (message.author.bot) return;
+
+        const collectedMessage: ICollectedMessage = {author: message.author.username, content: message.content};
+        Globals.collectedMessages.push(collectedMessage);
+
+        if (Globals.collectedMessages.length > 50) {
+            Globals.collectedMessages.shift();
+        }
 
         await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
             for (const guildConfiguration of response) {

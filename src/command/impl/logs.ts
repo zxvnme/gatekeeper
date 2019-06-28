@@ -10,7 +10,7 @@ export default class LogsCommand implements ICommand {
     constructor() {
         this.description = "Toggle Gatekeeper chat logs.";
         this.syntax = "logs";
-        this.args = "[logsChannelId: string]";
+        this.args = "[logsChannelId: snowflake/string(none)]";
     }
 
     description: string;

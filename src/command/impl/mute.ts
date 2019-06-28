@@ -33,7 +33,7 @@ export default class MuteCommand implements ICommand {
             if (!muteRole) {
                 await message.guild.createRole({
                     name: "Muted",
-                    color: 0x000000,
+                    color: 0x0000,
                     permissions: []
                 }).then(async role => {
                     muteRole = role;
@@ -65,7 +65,8 @@ export default class MuteCommand implements ICommand {
                             .setAuthor(memberToMute.user.tag, memberToMute.user.avatarURL)
                             .setTitle(`Member ${(args[2] ? "temporary mute" : "mute")} detected.`)
                             .setDescription(`Mute will stay ${(args[2]) ? "for " + args[2] + "min" : "forever"} if not unmuted earlier.`)
-                            .setFooter("Gatekeeper moderation")
+                            .addField("Invoker:", `<@${message.author.id}>`)
+                            .setFooter("🔑 Gatekeeper moderation")
                             .setTimestamp(new Date());
 
                         // @ts-ignore

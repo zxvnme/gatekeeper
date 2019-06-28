@@ -24,7 +24,7 @@ export default class MessageUpdateEvent implements IEvent {
                         .setDescription(`Action performed in <#${messageNew.channel.id}>`)
                         .addField("Old:", `\`${messageOld.content}\``, true)
                         .addField("New:", `\`${messageNew.content}\``, true)
-                        .setFooter("Gatekeeper moderation")
+                        .setFooter("🔑 Gatekeeper moderation")
                         .setTimestamp(new Date());
 
                     await client.channels.get(guildConfiguration.logschannelid).send(embed);

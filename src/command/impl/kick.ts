@@ -25,6 +25,27 @@ export default class KickCommand implements ICommand {
             const memberToKick = await message.mentions.members.first();
             await args.splice(0, 2);
             await memberToKick.kick(`${args.join(" ")} (command invoked by: ${message.author.tag})`);
+
+            await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
+                for (const guildConfiguration of response) {
+                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+
+                        const embed = new Discord.RichEmbed()
+                            .setColor(0xff7675)
+                            .setAuthor(memberToKick.user.tag, memberToKick.user.avatarURL)
+                            .setTitle(`Member kick detected.`)
+                            .setDescription(`<@${memberToKick.id}> has been kicked.`)
+                            .addField("Reason:", args.join(" "))
+                            .addField("Invoker:", `<@${message.author.id}>`)
+                            .setFooter("🔑 Gatekeeper moderation")
+                            .setTimestamp(new Date());
+
+                        // @ts-ignore
+                        await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                    }
+                }
+            });
+
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
         }

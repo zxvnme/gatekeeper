@@ -22,11 +22,32 @@ export default class PardonCommand implements ICommand {
 
             if (!Checks.argsCheck(message, this, args)) return;
 
+            let bannedUser;
+
             await message.guild.fetchBans().then(async bans => {
-                const bannedUser = await bans.find(bannedUser => bannedUser.tag === args[1]);
+                bannedUser = await bans.find(bannedUser => bannedUser.tag === args[1]);
                 await message.guild.unban(bannedUser.id);
-                await bannedUser.send(`You have been unbanned from ${message.guild.name}`);
-            })
+            });
+
+            await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
+                for (const guildConfiguration of response) {
+                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+
+                        const embed = new Discord.RichEmbed()
+                            .setColor(0x55efc4)
+                            .setAuthor(bannedUser.tag, bannedUser.avatarURL)
+                            .setTitle(`Member unban detected.`)
+                            .setDescription(`<@${bannedUser.id}> has been unbanned.`)
+                            .addField("Invoker:", `<@${message.author.id}>`)
+                            .setFooter("🔑 Gatekeeper moderation")
+                            .setTimestamp(new Date());
+
+                        // @ts-ignore
+                        await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                    }
+                }
+            });
+
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
         }

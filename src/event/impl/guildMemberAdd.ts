@@ -18,8 +18,9 @@ export default class GuildMemberAddEvent implements IEvent {
                     const embed = new Discord.RichEmbed()
                         .setColor(0x55efc4)
                         .setAuthor(member.user.tag, member.user.avatarURL)
+                        .setThumbnail(member.user.avatarURL)
                         .setTitle("New member join detected.")
-                        .setFooter("Gatekeeper moderation")
+                        .setFooter("🔑 Gatekeeper moderation")
                         .setTimestamp(new Date());
 
                     await client.channels.get(guildConfiguration.logschannelid).send(embed);

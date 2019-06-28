@@ -29,6 +29,27 @@ export default class BanCommand implements ICommand {
                 days: daysToDelete,
                 reason: `${args.join(" ")} (command invoked by: ${message.author.tag})`
             });
+
+            await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
+                for (const guildConfiguration of response) {
+                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+
+                        const embed = new Discord.RichEmbed()
+                            .setColor(0xff7675)
+                            .setAuthor(memberToBan.user.tag, memberToBan.user.avatarURL)
+                            .setTitle(`Member ban detected.`)
+                            .setDescription(`<@${memberToBan.id}> has been banned.\n
+                            Deleted user messages from ${daysToDelete} days`)
+                            .addField("Invoker:", `<@${message.author.id}>`)
+                            .addField("Reason", args.join(" "))
+                            .setFooter("🔑 Gatekeeper moderation")
+                            .setTimestamp(new Date());
+
+                        // @ts-ignore
+                        await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                    }
+                }
+            });
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
         }

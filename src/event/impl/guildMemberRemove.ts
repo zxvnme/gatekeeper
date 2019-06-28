@@ -18,8 +18,9 @@ export default class GuildMemberRemoveEvent implements IEvent {
                     const embed = new Discord.RichEmbed()
                         .setColor(0xff7675)
                         .setAuthor(member.user.tag, member.user.avatarURL)
+                        .setThumbnail(member.user.avatarURL)
                         .setTitle("Member leave detected.")
-                        .setFooter("Gatekeeper moderation")
+                        .setFooter("🔑 Gatekeeper moderation")
                         .setTimestamp(new Date());
 
                     await client.channels.get(guildConfiguration.logschannelid).send(embed);

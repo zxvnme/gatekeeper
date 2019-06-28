@@ -16,7 +16,7 @@ export default class GuildCreateEvent implements IEvent {
         const embed = new Discord.RichEmbed()
             .setThumbnail(Globals.clientInstance.user.avatarURL)
             .setColor(0xf1c40f)
-            .setAuthor("Gatekeeper welcome message.")
+            .setAuthor("🔑 Gatekeeper welcome message.")
             .setDescription("Hey! Psst! Im Gatekeeper - an advanced Discord **moderation** bot.")
             .addField("Why does i received this message?!", `Because it seems that you are owner of ${guild.name}`, true)
             .addField("Where can I see list of commands or smth?", "Commands documentation and feature list " +

@@ -35,7 +35,8 @@ export default class UnmuteCommand implements ICommand {
                             .setColor(0x161616)
                             .setAuthor(memberToUnmute.user.tag, memberToUnmute.user.avatarURL)
                             .setTitle(`Member unmute detected.`)
-                            .setFooter("Gatekeeper moderation")
+                            .addField("Invoker:", `<@${message.author.id}>`)
+                            .setFooter("🔑 Gatekeeper moderation")
                             .setTimestamp(new Date());
 
                         // @ts-ignore

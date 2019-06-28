@@ -35,7 +35,25 @@ export default class LockCommand implements ICommand {
                 {"SEND_MESSAGES": false},
             );
 
-            await Announcements.success(message, `Successfully locked #${message.guild.channels.get(lockedChannelID).name} channel.`, undefined, true);
+            await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
+                for (const guildConfiguration of response) {
+                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+
+                        const embed = new Discord.RichEmbed()
+                            .setColor(0xff7675)
+                            .setTitle(`Channel lock detected.`)
+                            .setDescription(`<#${lockedChannelID}> has been locked.`)
+                            .addField("Invoker:", `<@${message.author.id}>`)
+                            .setFooter("🔑 Gatekeeper moderation")
+                            .setTimestamp(new Date());
+
+                        // @ts-ignore
+                        await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                    }
+                }
+            });
+
+            await Announcements.success(message, "Channel locked.", `Successfully locked <#${lockedChannelID}> channel.`, true);
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
         }

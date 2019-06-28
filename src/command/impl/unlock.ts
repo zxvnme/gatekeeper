@@ -35,7 +35,25 @@ export default class UnlockCommand implements ICommand {
                 {"SEND_MESSAGES": true},
             );
 
-            await Announcements.success(message, `Successfully unlocked #${message.guild.channels.get(lockedChannelID).name} channel.`, undefined, true);
+            await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
+                for (const guildConfiguration of response) {
+                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+
+                        const embed = new Discord.RichEmbed()
+                            .setColor(0x74b9ff)
+                            .setTitle(`Channel unlock detected.`)
+                            .setDescription(`<#${lockedChannelID}> has been unlocked.`)
+                            .addField("Invoker:", `<@${message.author.id}>`)
+                            .setFooter("🔑 Gatekeeper moderation")
+                            .setTimestamp(new Date());
+
+                        // @ts-ignore
+                        await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                    }
+                }
+            });
+
+            await Announcements.success(message, "Channel unlock", `Successfully unlocked <#${message.guild.channels.get(lockedChannelID).name}> channel.`, true);
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
         }

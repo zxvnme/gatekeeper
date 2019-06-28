@@ -24,7 +24,7 @@ export default class MessageDeleteEvent implements IEvent {
                         .setTitle("Message deletion detected.")
                         .setDescription(`Action performed in <#${message.channel.id}>`)
                         .addField("Message:", `\`${message.content}\``, true)
-                        .setFooter("Gatekeeper moderation")
+                        .setFooter("🔑 Gatekeeper moderation")
                         .setTimestamp(new Date());
 
                     await client.channels.get(guildConfiguration.logschannelid).send(embed);
