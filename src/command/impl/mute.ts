@@ -3,6 +3,7 @@ import * as Discord from "discord.js"
 import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
 import {Announcements} from "../../utils/announcements";
+import {Globals} from "../../globals";
 
 export default class MuteCommand implements ICommand {
 
@@ -20,13 +21,13 @@ export default class MuteCommand implements ICommand {
         if (!Checks.permissionCheck(message, "MANAGE_MESSAGES")) return;
 
         if (!args[1]) {
-            Announcements.error(message, "Invalid usage", `Proper: **${this.syntax} ${this.args}**`, false);
+            await Announcements.error(message, "Invalid usage", `Proper: **${this.syntax} ${this.args}**`, false);
             return;
         }
 
-        const memberToMute = message.mentions.members.first();
+        const memberToMute = await message.mentions.members.first();
 
-        let muteRole: Discord.Role = message.guild.roles.find(role => role.name == "Muted");
+        let muteRole: Discord.Role = await message.guild.roles.find(role => role.name == "Muted");
 
         if (!muteRole) {
             await message.guild.createRole({
@@ -50,8 +51,26 @@ export default class MuteCommand implements ICommand {
 
         if (args[2]) {
             setTimeout(async () => {
-                memberToMute.removeRole(muteRole.id);
-            }, parseInt(args[2]) * 1000);
+                await memberToMute.removeRole(muteRole.id);
+            }, parseInt(args[2]) * 1000 * 60);
         }
+
+        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
+            for (const guildConfiguration of response) {
+                if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+
+                    const embed = new Discord.RichEmbed()
+                        .setColor(0x000)
+                        .setAuthor(memberToMute.user.tag, memberToMute.user.avatarURL)
+                        .setTitle(`Member ${(args[2] ? "temporary mute" : "mute")} detected.`)
+                        .setDescription(`Mute will stay ${(args[2]) ? "for " + args[2] + "min" : "forever"} if not unmuted earlier.`)
+                        .setFooter("Gatekeeper moderation")
+                        .setTimestamp(new Date());
+
+                    // @ts-ignore
+                    await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                }
+            }
+        });
     }
 }

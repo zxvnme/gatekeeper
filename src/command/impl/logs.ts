@@ -17,28 +17,28 @@ export default class LogsCommand implements ICommand {
     syntax: string;
     args: string;
 
-    action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
+    async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
         if (!Checks.permissionCheck(message, "ADMINISTRATOR")) return;
 
         if (!Checks.argsCheck(message, this, args)) return;
 
         try {
             if (args[1] == "off") {
-                Globals.databaseConnection.query(`UPDATE guildconfiguration SET logschannelid='none' WHERE guildid=${message.guild.id}`, (error, response) => {
+                await Globals.databaseConnection.query(`UPDATE guildconfiguration SET logschannelid='none' WHERE guildid=${message.guild.id}`, async (error, response) => {
                     if (response.affectedRows > 0) {
-                        Announcements.success(message, `Successfully disabled logs.`);
+                        await Announcements.success(message, `Successfully disabled logs.`);
                     }
                 });
             } else {
                 const logsChannel = message.guild.channels.get(args[1]).id;
-                Globals.databaseConnection.query(`UPDATE guildconfiguration SET logschannelid=${logsChannel} WHERE guildid=${message.guild.id}`, (error, response) => {
+                await Globals.databaseConnection.query(`UPDATE guildconfiguration SET logschannelid=${logsChannel} WHERE guildid=${message.guild.id}`, async (error, response) => {
                     if (response.affectedRows > 0) {
-                        Announcements.success(message, `Successfully set logs channel to:`, `<#${logsChannel}>`);
+                        await Announcements.success(message, `Successfully set logs channel to:`, `<#${logsChannel}>`);
                     }
                 });
             }
         } catch (error) {
-            Globals.loggerInstance.fatal(error);
+            await Globals.loggerInstance.fatal(error);
         }
     }
 }

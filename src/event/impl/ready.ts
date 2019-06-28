@@ -8,7 +8,7 @@ export default class ReadyEvent implements IEvent {
 
     name: string;
 
-    override(client): void {
-        Globals.loggerInstance.success(`I am ready! ${client.user.tag}`);
+    async override(client): Promise<void> {
+        await Globals.loggerInstance.success(`I am ready! ${client.user.tag}`);
     }
 }

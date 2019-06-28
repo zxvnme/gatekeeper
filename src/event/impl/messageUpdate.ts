@@ -10,10 +10,10 @@ export default class MessageUpdateEvent implements IEvent {
 
     name: string;
 
-    override(client, messageOld, messageNew): void {
+    async override(client, messageOld, messageNew): Promise<void> {
         if (messageOld.author === client.user) return;
 
-        Globals.databaseConnection.query("SELECT * from guildconfiguration", (error, response, meta) => {
+        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
             for (const guildConfiguration of response) {
                 if ((messageOld.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
 
@@ -27,7 +27,7 @@ export default class MessageUpdateEvent implements IEvent {
                         .setFooter("Gatekeeper moderation")
                         .setTimestamp(new Date());
 
-                    client.channels.get(guildConfiguration.logschannelid).send(embed);
+                    await client.channels.get(guildConfiguration.logschannelid).send(embed);
                 }
             }
         });

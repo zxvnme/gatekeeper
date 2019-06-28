@@ -8,7 +8,7 @@ export default class ErrorEvent implements IEvent {
 
     name: string;
 
-    override(client, error): void {
+    async override(client, error): Promise<void> {
         Globals.loggerInstance.fatal(error);
     }
 }

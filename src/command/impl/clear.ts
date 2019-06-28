@@ -16,22 +16,22 @@ export default class ClearCommand implements ICommand {
     syntax: string;
     args: string;
 
-    action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
+    async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
         if (!Checks.permissionCheck(message, "MANAGE_MESSAGES")) return;
 
         if (!Checks.argsCheck(message, this, args)) return;
 
-        const messagesToDelete: number = parseInt(args[1]);
+        const messagesToDelete: number = await parseInt(args[1]);
 
         if (messagesToDelete > 100) {
-            Announcements.warning(message, "Bot can only delete up to 100 messages.", undefined, false);
+            await Announcements.warning(message, "Bot can only delete up to 100 messages.", undefined, false);
         }
 
-        message.channel.fetchMessages({limit: 100}).then(messages => {
+        await message.channel.fetchMessages({limit: 100}).then(async messages => {
             const messagesArray = messages.array();
             messagesArray.length = messagesToDelete + 1;
-            messagesArray.map(msg => {
-                msg.delete();
+            messagesArray.map(async msg => {
+                await msg.delete();
             });
         });
     }

@@ -17,20 +17,20 @@ export default class FilterCommand implements ICommand {
     syntax: string;
     args: string;
 
-    action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
+    async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
         if (!Checks.permissionCheck(message, "ADMINISTRATOR")) return;
 
         if (!Checks.argsCheck(message, this, args)) return;
 
-        const filterState: number = parseInt(args[1]);
+        const filterState: number = await parseInt(args[1]);
 
         if ((filterState > 1 || filterState < 0) || isNaN(filterState)) {
-            Announcements.error(message, "The value must be number between 0 (for false) and 1 (for true)", undefined, true);
+            await Announcements.error(message, "The value must be number between 0 (for false) and 1 (for true)", undefined, true);
             return;
         }
 
-        Globals.databaseConnection.query(`UPDATE guildconfiguration SET filter=${filterState} WHERE guildid=${message.guild.id}`);
+        await Globals.databaseConnection.query(`UPDATE guildconfiguration SET filter=${filterState} WHERE guildid=${message.guild.id}`);
 
-        Announcements.success(message, `Successfully ${(filterState == 1) ? "enabled" : "disabled"} bad words filter on this server.`);
+        await Announcements.success(message, `Successfully ${(filterState == 1) ? "enabled" : "disabled"} bad words filter on this server.`);
     }
 }

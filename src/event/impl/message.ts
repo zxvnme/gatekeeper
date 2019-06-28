@@ -9,15 +9,15 @@ export default class MessageEvent implements IEvent {
 
     name: string;
 
-    override(client, message): void {
+    async override(client, message): Promise<void> {
         if (message.author.bot) return;
 
-        Globals.databaseConnection.query("SELECT * from guildconfiguration", (error, response, meta) => {
+        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
             for (const guildConfiguration of response) {
                 if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.filter == 1) {
                     if (Globals.filterInstance.isProfane(message.content)) {
-                        message.delete();
-                        Announcements.warning(message, `${message.author.username}, you've used one of the bad words! Keep your language nice...`, undefined, true)
+                        await message.delete();
+                        await Announcements.warning(message, `${message.author.username}, you've used one of the bad words! Keep your language nice...`, undefined, true)
                     }
                 }
             }
@@ -25,11 +25,11 @@ export default class MessageEvent implements IEvent {
 
         if (!message.content.startsWith(Globals.config.defaultPrefix)) return;
 
-        let args = message.content.substring(Globals.config.defaultPrefix.length).split(" ");
+        let args = await message.content.substring(Globals.config.defaultPrefix.length).split(" ");
 
         for (let command of Globals.commands) {
             if (command.syntax == args[0]) {
-                command.action(Globals.clientInstance, message, args);
+                await command.action(Globals.clientInstance, message, args);
             }
         }
     }

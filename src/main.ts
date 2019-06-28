@@ -7,19 +7,23 @@ import {Globals} from "./globals";
 const discordInstance = new Discord.Client();
 const config = require("./../config.json") as IConfig;
 
-Globals.config = config;
-Globals.clientInstance = discordInstance;
+async function main() {
+    Globals.config = config;
+    Globals.clientInstance = discordInstance;
 
-Globals.databaseConnection = MariaDB.createConnection({
-    host: config.databaseHost,
-    user: config.databaseUser,
-    password: config.databasePassword
-});
+    Globals.databaseConnection = await MariaDB.createConnection({
+        host: config.databaseHost,
+        user: config.databaseUser,
+        password: config.databasePassword
+    });
 
-Globals.databaseConnection.connect(error => {
-    if (error) {
-        Globals.loggerInstance.fatal(error);
-    }
-});
+    await Globals.databaseConnection.connect(error => {
+        if (error) {
+            Globals.loggerInstance.fatal(error);
+        }
+    });
 
-new Bootstrapper().start();
+    new Bootstrapper().start();
+}
+
+main();

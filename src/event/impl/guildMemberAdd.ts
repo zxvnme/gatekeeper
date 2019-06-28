@@ -10,8 +10,8 @@ export default class GuildMemberAddEvent implements IEvent {
 
     name: string;
 
-    override(client, member): void {
-        Globals.databaseConnection.query("SELECT * from guildconfiguration", (error, response, meta) => {
+    async override(client, member): Promise<void> {
+        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
             for (const guildConfiguration of response) {
                 if ((member.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
 
@@ -22,7 +22,7 @@ export default class GuildMemberAddEvent implements IEvent {
                         .setFooter("Gatekeeper moderation")
                         .setTimestamp(new Date());
 
-                    client.channels.get(guildConfiguration.logschannelid).send(embed);
+                    await client.channels.get(guildConfiguration.logschannelid).send(embed);
                 }
             }
         });

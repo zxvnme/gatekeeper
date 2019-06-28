@@ -16,7 +16,7 @@ export default class LockCommand implements ICommand {
     syntax: string;
     args: string;
 
-    action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
+    async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
         if (!Checks.permissionCheck(message, "MANAGE_CHANNELS")) return;
 
         let lockedChannelID: string;
@@ -28,11 +28,11 @@ export default class LockCommand implements ICommand {
         }
 
         // @ts-ignore
-        message.guild.channels.get(lockedChannelID).overwritePermissions(
+        await message.guild.channels.get(lockedChannelID).overwritePermissions(
             message.guild.defaultRole,
             {"SEND_MESSAGES": false},
         );
 
-        Announcements.success(message, `Successfully locked #${message.guild.channels.get(lockedChannelID).name} channel.`, undefined, true);
+        await Announcements.success(message, `Successfully locked #${message.guild.channels.get(lockedChannelID).name} channel.`, undefined, true);
     }
 }

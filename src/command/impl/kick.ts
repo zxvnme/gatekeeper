@@ -15,13 +15,13 @@ export default class KickCommand implements ICommand {
     syntax: string;
     args: string;
 
-    action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
+    async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
         if (!Checks.permissionCheck(message, "KICK_MEMBERS")) return;
 
         if(!Checks.argsCheck(message, this, args)) return;
 
-        const memberToKick = message.mentions.members.first();
-        args.splice(0, 2);
-        memberToKick.kick(`${args.join(" ")} (command invoked by: ${message.author.tag})`);
+        const memberToKick = await message.mentions.members.first();
+        await args.splice(0, 2);
+        await memberToKick.kick(`${args.join(" ")} (command invoked by: ${message.author.tag})`);
     }
 }

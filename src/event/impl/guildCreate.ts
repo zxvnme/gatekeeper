@@ -10,8 +10,8 @@ export default class GuildCreateEvent implements IEvent {
 
     name: string;
 
-    override(client, guild): void {
-        Globals.databaseConnection.query("INSERT INTO guildconfiguration(guildid, logschannelid, filter) value (?, ?, ?)", [guild.id, "none", 0]);
+    async override(client, guild): Promise<void> {
+        await Globals.databaseConnection.query("INSERT INTO guildconfiguration(guildid, logschannelid, filter) value (?, ?, ?)", [guild.id, "none", 0]);
 
         const embed = new Discord.RichEmbed()
             .setThumbnail(Globals.clientInstance.user.avatarURL)
@@ -23,6 +23,6 @@ export default class GuildCreateEvent implements IEvent {
                 "can be found at https://github.com/zxvnme/Gatekeeper/blob/master/README.md", true)
             .setFooter("Created by zxvnme#2598 under LGPL 2.1 License. https://github.com/zxvnme");
 
-        guild.members.get(guild.ownerID).send(embed);
+        await guild.members.get(guild.ownerID).send(embed);
     }
 }

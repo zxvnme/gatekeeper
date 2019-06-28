@@ -10,10 +10,11 @@ export default class MessageDeleteEvent implements IEvent {
 
     name: string;
 
-    override(client, message): void {
-        if (message.author === client.user) return;
+    async override(client, message): Promise<void> {
+        if (message.author == client.user) return;
+        if (message.author.bot) return;
 
-        Globals.databaseConnection.query("SELECT * from guildconfiguration", (error, response, meta) => {
+        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
             for (const guildConfiguration of response) {
                 if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
 
@@ -26,7 +27,7 @@ export default class MessageDeleteEvent implements IEvent {
                         .setFooter("Gatekeeper moderation")
                         .setTimestamp(new Date());
 
-                    client.channels.get(guildConfiguration.logschannelid).send(embed);
+                    await client.channels.get(guildConfiguration.logschannelid).send(embed);
                 }
             }
         });

@@ -15,7 +15,7 @@ export default class PingCommand implements ICommand {
     syntax: string;
     args: string;
 
-    action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
-        Announcements.info(message, "Pong!", `Average heartbeat ping of the websocket is: ${clientInstance.ping}ms`, false);
+    async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
+        await Announcements.info(message, "Pong!", `Average heartbeat ping of the websocket is: ${Math.round(clientInstance.ping)}ms`, false);
     }
 }

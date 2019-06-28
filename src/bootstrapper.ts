@@ -16,78 +16,78 @@ export interface IConfig {
 
 export class Bootstrapper {
 
-    private registerCommands() {
+    private async registerCommands(): Promise<void> {
         try {
-            Globals.loggerInstance.pending("Running registerCommands();");
-            fs.readdir(Path.resolve(__dirname, "command", "impl"), (error, files) => {
+            await Globals.loggerInstance.pending("Running registerCommands();");
+            await fs.readdir(Path.resolve(__dirname, "command", "impl"), async (error, files) => {
                 for (const command of files) {
                     const requiredCommand = require(Path.resolve(__dirname, "command", "impl", command)).default;
                     const commandClass = new requiredCommand() as ICommand;
-                    Globals.commands.push(commandClass);
-                    Globals.loggerInstance.success(`${command} loaded.`);
+                    await Globals.commands.push(commandClass);
+                    await Globals.loggerInstance.success(`Command ${command} loaded.`);
                 }
-                Globals.loggerInstance.complete("registerCommands(); completed.")
+                await Globals.loggerInstance.complete("registerCommands(); completed.")
             });
         } catch (error) {
-            Globals.loggerInstance.fatal(error);
+            await Globals.loggerInstance.fatal(error);
         }
     }
 
 
-    private registerEvents() {
+    private async registerEvents(): Promise<void> {
         try {
-            Globals.loggerInstance.pending("Running registerEvents();");
-            fs.readdir(Path.resolve(__dirname, "event", "impl"), (error, files) => {
+            await Globals.loggerInstance.pending("Running registerEvents();");
+            fs.readdir(Path.resolve(__dirname, "event", "impl"), async (error, files) => {
                 for (const event of files) {
                     const requiredEvent = require(Path.resolve(__dirname, "event", "impl", event)).default;
                     const eventClass = new requiredEvent() as IEvent;
                     Globals.clientInstance.on(eventClass.name, eventClass.override.bind(null, Globals.clientInstance));
-                    Globals.loggerInstance.success(`${event} loaded.`);
+                    await Globals.loggerInstance.success(`Event ${event} loaded.`);
                 }
-                Globals.loggerInstance.complete("registerEvents(); completed.")
+                await Globals.loggerInstance.complete("registerEvents(); completed.")
             });
         } catch (error) {
-            Globals.loggerInstance.fatal(error);
+            await Globals.loggerInstance.fatal(error);
         }
     }
 
-    private detectOrCreateDatabase() {
+    private async detectOrCreateDatabase(): Promise<void> {
         try {
-            Globals.loggerInstance.pending("Detecting or creating database gatekeeper if not detected.");
-            Globals.databaseConnection.query("CREATE DATABASE IF NOT EXISTS gatekeeper", (error, response) => {
+            await Globals.loggerInstance.pending("Detecting or creating database gatekeeper if not detected.");
+            await Globals.databaseConnection.query("CREATE DATABASE IF NOT EXISTS gatekeeper", async (error, response) => {
                 if (response.affectedRows > 0) {
-                    Globals.loggerInstance.complete("Database creation successful.");
+                    await Globals.loggerInstance.complete("Database creation successful.");
                 } else {
-                    Globals.loggerInstance.complete("Database detection successful.");
+                    await Globals.loggerInstance.complete("Database detection successful.");
                 }
-                Globals.databaseConnection.query("USE gatekeeper");
-                Globals.loggerInstance.info("Using database gateekeeper.");
-                Globals.loggerInstance.pending("Creating or detecting table guildconfiguration with guildid, logschannelid and filter variables if not detected.");
-                Globals.databaseConnection.query("CREATE TABLE IF NOT EXISTS `guildconfiguration` (`guildid` TEXT NULL DEFAULT NULL, `logschannelid` TEXT NULL DEFAULT NULL, `filter` INT(1) NULL DEFAULT NULL)", (error, response) => {
+                await Globals.databaseConnection.query("USE gatekeeper");
+                await Globals.loggerInstance.info("Using database gateekeeper.");
+                await Globals.loggerInstance.pending("Creating or detecting table guildconfiguration with guildid, logschannelid and filter variables if not detected.");
+                await Globals.databaseConnection.query("CREATE TABLE IF NOT EXISTS `guildconfiguration` (`guildid` TEXT NULL DEFAULT NULL, `logschannelid` TEXT NULL DEFAULT NULL, `filter` INT(1) NULL DEFAULT NULL)", async (error, response) => {
                     if (response.affectedRows > 0) {
-                        Globals.loggerInstance.complete("Table creation sucessful.")
+                        await Globals.loggerInstance.complete("Table creation sucessful.")
                     } else {
-                        Globals.loggerInstance.complete("Table detection sucessful.")
+                        await Globals.loggerInstance.complete("Table detection sucessful.")
                     }
                 });
 
             })
         } catch (error) {
-            Globals.loggerInstance.fatal(error);
+            await Globals.loggerInstance.fatal(error);
         }
     }
 
-    public start(): void {
-        this.detectOrCreateDatabase();
+    public async start(): Promise<void> {
+        await this.detectOrCreateDatabase();
 
-        this.registerCommands();
+        await this.registerCommands();
 
-        this.registerEvents();
+        await this.registerEvents();
 
         process.on("unhandledRejection", error => {
             Globals.loggerInstance.fatal(error);
         });
 
-        Globals.clientInstance.login(Globals.config.token)
+        await Globals.clientInstance.login(Globals.config.token)
     }
 }

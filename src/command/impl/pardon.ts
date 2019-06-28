@@ -15,15 +15,15 @@ export default class PardonCommand implements ICommand {
     syntax: string;
     args: string;
 
-    action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
+    async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
         if (!Checks.permissionCheck(message, "BAN_MEMBERS")) return;
 
-        if(!Checks.argsCheck(message, this, args)) return;
+        if (!Checks.argsCheck(message, this, args)) return;
 
-        message.guild.fetchBans().then(bans => {
-            const bannedUser = bans.find(bannedUser => bannedUser.tag === args[1]);
-            message.guild.unban(bannedUser.id);
-            bannedUser.send(`You have been unbanned from ${message.guild.name}`);
+        await message.guild.fetchBans().then(async bans => {
+            const bannedUser = await bans.find(bannedUser => bannedUser.tag === args[1]);
+            await message.guild.unban(bannedUser.id);
+            await bannedUser.send(`You have been unbanned from ${message.guild.name}`);
         })
     }
 }

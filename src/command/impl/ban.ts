@@ -15,15 +15,15 @@ export default class BanCommand implements ICommand {
     syntax: string;
     args: string;
 
-    action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): void {
+    async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
         if (!Checks.permissionCheck(message, "BAN_MEMBERS")) return;
 
-        if(!Checks.argsCheck(message, this, args)) return;
+        if (!Checks.argsCheck(message, this, args)) return;
 
-        const memberToBan = message.mentions.members.first();
-        const daysToDelete: number = parseInt(args[2]);
-        args.splice(0, 3);
-        memberToBan.ban({
+        const memberToBan = await message.mentions.members.first();
+        const daysToDelete: number = await parseInt(args[2]);
+        await args.splice(0, 3);
+        await memberToBan.ban({
             days: daysToDelete,
             reason: `${args.join(" ")} (command invoked by: ${message.author.tag})`
         });

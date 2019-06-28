@@ -1,4 +1,4 @@
 export interface IEvent {
     name: string,
-    override(...args: any[]): void
+    override(...args: any[]): Promise<void>
 }
