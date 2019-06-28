@@ -13,7 +13,7 @@ export class Checks {
     }
 
     public static argsCheck(discordMessageInstance: Discord.Message, commandInstance: ICommand, args: string[]): boolean {
-        const splitArgs = commandInstance.args.split(" ");
+        const splitArgs = commandInstance.args.split("[");
         if (args.length < splitArgs.length) {
             Announcements.error(discordMessageInstance, "Invalid usage", `Proper: **${commandInstance.syntax} ${commandInstance.args}**`, false);
             return false;
