@@ -7,6 +7,9 @@ import {Globals} from "./globals";
 const discordInstance = new Discord.Client();
 const config = require("./../config.json") as IConfig;
 
+Globals.config = config;
+Globals.clientInstance = discordInstance;
+
 Globals.databaseConnection = MariaDB.createConnection({
     host: config.databaseHost,
     user: config.databaseUser,
@@ -19,4 +22,4 @@ Globals.databaseConnection.connect(error => {
     }
 });
 
-new Bootstrapper().start(discordInstance, config);
+new Bootstrapper().start();

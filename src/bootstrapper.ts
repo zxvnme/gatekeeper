@@ -1,10 +1,10 @@
-import * as Discord from "discord.js"
+
 import * as fs from "fs";
 import * as Path from "path";
 
 import {ICommand} from "./command/command";
 import {Globals} from "./globals";
-import {Announcements} from "./utils/announcements";
+import {IEvent} from "./event/event";
 
 export interface IConfig {
     token: string;
@@ -14,16 +14,7 @@ export interface IConfig {
     defaultPrefix: string;
 }
 
-interface IBootstrapper {
-    commands: ICommand[]
-    clientInstance: Discord.Client
-
-    start(clientInstance: Discord.Client, config: IConfig): void
-}
-
-export class Bootstrapper implements IBootstrapper {
-    commands: ICommand[];
-    clientInstance: Discord.Client;
+export class Bootstrapper {
 
     private registerCommands() {
         try {
@@ -32,10 +23,28 @@ export class Bootstrapper implements IBootstrapper {
                 for (const command of files) {
                     const requiredCommand = require(Path.resolve(__dirname, "command", "impl", command)).default;
                     const commandClass = new requiredCommand() as ICommand;
-                    this.commands.push(commandClass);
+                    Globals.commands.push(commandClass);
                     Globals.loggerInstance.success(`${command} loaded.`);
                 }
                 Globals.loggerInstance.complete("registerCommands(); completed.")
+            });
+        } catch (error) {
+            Globals.loggerInstance.fatal(error);
+        }
+    }
+
+
+    private registerEvents() {
+        try {
+            Globals.loggerInstance.pending("Running registerEvents();");
+            fs.readdir(Path.resolve(__dirname, "event", "impl"), (error, files) => {
+                for (const event of files) {
+                    const requiredEvent = require(Path.resolve(__dirname, "event", "impl", event)).default;
+                    const eventClass = new requiredEvent() as IEvent;
+                    Globals.clientInstance.on(eventClass.name, eventClass.override.bind(null, Globals.clientInstance));
+                    Globals.loggerInstance.success(`${event} loaded.`);
+                }
+                Globals.loggerInstance.complete("registerEvents(); completed.")
             });
         } catch (error) {
             Globals.loggerInstance.fatal(error);
@@ -68,68 +77,17 @@ export class Bootstrapper implements IBootstrapper {
         }
     }
 
-    public start(clientInstance: Discord.Client, config: IConfig): void {
-        this.clientInstance = clientInstance;
-        this.commands = [];
-
+    public start(): void {
         this.detectOrCreateDatabase();
 
         this.registerCommands();
 
-        clientInstance.on("ready", () => {
-            Globals.loggerInstance.success(`I am ready! (${clientInstance.user.tag})`);
-        });
-
-        clientInstance.on("message", message => {
-            if (message.author.bot) return;
-
-            Globals.databaseConnection.query("SELECT * from guildconfiguration", (error, response, meta) => {
-                for(const guildConfiguration of response) {
-                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.filter == 1) {
-                        if (Globals.filterInstance.isProfane(message.content)) {
-                            message.delete();
-                            Announcements.warning(message, `${message.author.username}, you've used one of the bad words! Keep your language nice...`, undefined, true)
-                        }
-                    }
-                }
-            });
-
-            if (!message.content.startsWith(config.defaultPrefix)) return;
-
-            let args = message.content.substring(config.defaultPrefix.length).split(" ");
-
-            for (let command of this.commands) {
-                if (command.syntax == args[0]) {
-                    command.action(clientInstance, message, args);
-                }
-            }
-        });
-
-        clientInstance.on("error", error => {
-            Globals.loggerInstance.fatal(error);
-        });
-
-        clientInstance.on("guildCreate", guild => {
-
-            Globals.databaseConnection.query("INSERT INTO guildconfiguration(guildid, logschannelid, filter) value (?, ?, ?)", [guild.id, "x", 0]);
-
-            const embed = new Discord.RichEmbed()
-                .setThumbnail(clientInstance.user.avatarURL)
-                .setColor(0xf1c40f)
-                .setAuthor("Gatekeeper welcome message.")
-                .setDescription("Hey! Psst! Im Gatekeeper - an advanced Discord **moderation** bot.")
-                .addField("Why does i received this message?!", `Because it seems that you are owner of ${guild.name}`, true)
-                .addField("Where can I see list of commands or smth?", "Commands documentation and feature list " +
-                    "can be found at https://github.com/zxvnme/Gatekeeper/blob/master/README.md", true)
-                .setFooter("Created by zxvnme#2598 under LGPL 2.1 License. https://github.com/zxvnme");
-
-            guild.members.get(guild.ownerID).send(embed);
-        });
+        this.registerEvents();
 
         process.on("unhandledRejection", error => {
             Globals.loggerInstance.fatal(error);
         });
 
-        clientInstance.login(config.token)
+        Globals.clientInstance.login(Globals.config.token)
     }
 }
