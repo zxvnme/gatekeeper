@@ -6,14 +6,7 @@ import * as Discord from "discord.js"
 import {IConfig} from "./bootstrapper";
 import {ICommand} from "./command/command";
 
-export interface ICollectedMessage {
-    author: string;
-    channelId: string;
-    content: string;
-}
-
 export class Globals {
-    public static collectedMessages: ICollectedMessage[] = [];
     public static commands: ICommand[] = [];
     public static clientInstance: Discord.Client;
     public static config: IConfig;
