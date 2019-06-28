@@ -2,6 +2,7 @@ import * as Discord from "discord.js"
 
 import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
+import {Globals} from "../../globals";
 
 export default class BanCommand implements ICommand {
 
@@ -16,16 +17,20 @@ export default class BanCommand implements ICommand {
     args: string;
 
     async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
-        if (!Checks.permissionCheck(message, "BAN_MEMBERS")) return;
+        try {
+            if (!Checks.permissionCheck(message, "BAN_MEMBERS")) return;
 
-        if (!Checks.argsCheck(message, this, args)) return;
+            if (!Checks.argsCheck(message, this, args)) return;
 
-        const memberToBan = await message.mentions.members.first();
-        const daysToDelete: number = await parseInt(args[2]);
-        await args.splice(0, 3);
-        await memberToBan.ban({
-            days: daysToDelete,
-            reason: `${args.join(" ")} (command invoked by: ${message.author.tag})`
-        });
+            const memberToBan = await message.mentions.members.first();
+            const daysToDelete: number = await parseInt(args[2]);
+            await args.splice(0, 3);
+            await memberToBan.ban({
+                days: daysToDelete,
+                reason: `${args.join(" ")} (command invoked by: ${message.author.tag})`
+            });
+        } catch (error) {
+            await Globals.loggerInstance.fatal(error);
+        }
     }
 }

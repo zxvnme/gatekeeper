@@ -3,6 +3,7 @@ import * as Discord from "discord.js"
 import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
 import {Announcements} from "../../utils/announcements";
+import {Globals} from "../../globals";
 
 export default class SlowmodeCommand implements ICommand {
 
@@ -17,13 +18,17 @@ export default class SlowmodeCommand implements ICommand {
     args: string;
 
     async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
-        if (!Checks.permissionCheck(message, "MANAGE_CHANNELS")) return;
+        try {
+            if (!Checks.permissionCheck(message, "MANAGE_CHANNELS")) return;
 
-        if (!Checks.argsCheck(message, this, args)) return;
+            if (!Checks.argsCheck(message, this, args)) return;
 
-        // @ts-ignore
-        await message.channel.setRateLimitPerUser(parseInt(args[1]));
+            // @ts-ignore
+            await message.channel.setRateLimitPerUser(parseInt(args[1]));
 
-        await Announcements.success(message, `Successfully set slowmode to ${args[1]}s`);
+            await Announcements.success(message, `Successfully set slowmode to ${args[1]}s`);
+        } catch (error) {
+            await Globals.loggerInstance.fatal(error);
+        }
     }
 }

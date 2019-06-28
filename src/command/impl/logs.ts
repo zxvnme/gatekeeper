@@ -18,11 +18,11 @@ export default class LogsCommand implements ICommand {
     args: string;
 
     async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
-        if (!Checks.permissionCheck(message, "ADMINISTRATOR")) return;
-
-        if (!Checks.argsCheck(message, this, args)) return;
-
         try {
+            if (!Checks.permissionCheck(message, "ADMINISTRATOR")) return;
+
+            if (!Checks.argsCheck(message, this, args)) return;
+
             if (args[1] == "off") {
                 await Globals.databaseConnection.query(`UPDATE guildconfiguration SET logschannelid='none' WHERE guildid=${message.guild.id}`, async (error, response) => {
                     if (response.affectedRows > 0) {

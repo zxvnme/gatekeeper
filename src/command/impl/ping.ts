@@ -2,6 +2,7 @@ import * as Discord from "discord.js"
 
 import {ICommand} from "../command";
 import {Announcements} from "../../utils/announcements";
+import {Globals} from "../../globals";
 
 export default class PingCommand implements ICommand {
 
@@ -16,6 +17,10 @@ export default class PingCommand implements ICommand {
     args: string;
 
     async action(clientInstance: Discord.Client, message: Discord.Message, args: string[]): Promise<void> {
-        await Announcements.info(message, "Pong!", `Average heartbeat ping of the websocket is: ${Math.round(clientInstance.ping)}ms`, false);
+        try {
+            await Announcements.info(message, "Pong!", `Average heartbeat ping of the websocket is: ${Math.round(clientInstance.ping)}ms`, false);
+        } catch (error) {
+            await Globals.loggerInstance.fatal(error);
+        }
     }
 }
