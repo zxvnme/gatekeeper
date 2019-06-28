@@ -1,7 +1,7 @@
 import * as Discord from "discord.js"
 
 import {IEvent} from "../event";
-import {Globals, ICollectedMessage} from "../../globals";
+import {Globals} from "../../globals";
 import {Announcements} from "../../utils/announcements";
 
 export default class MessageEvent implements IEvent {
