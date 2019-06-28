@@ -62,8 +62,17 @@ export class Bootstrapper {
                 }
                 await Globals.databaseConnection.query("USE gatekeeper");
                 await Globals.loggerInstance.info("Using database gateekeeper.");
-                await Globals.loggerInstance.pending("Creating or detecting table guildconfiguration with guildid, logschannelid and filter variables if not detected.");
+                await Globals.loggerInstance.pending("Creating or detecting table guildconfiguration with guildid, logschannelid and filter records if not detected.");
                 await Globals.databaseConnection.query("CREATE TABLE IF NOT EXISTS `guildconfiguration` (`guildid` TEXT NULL DEFAULT NULL, `logschannelid` TEXT NULL DEFAULT NULL, `filter` INT(1) NULL DEFAULT NULL)", async (error, response) => {
+                    if (response.affectedRows > 0) {
+                        await Globals.loggerInstance.complete("Table creation sucessful.")
+                    } else {
+                        await Globals.loggerInstance.complete("Table detection sucessful.")
+                    }
+                });
+                await Globals.loggerInstance.pending("Creating or detecting table lastmessages with guildname, guildid, channelid, message and authorid records if not detected.");
+                await Globals.databaseConnection.query("CREATE TABLE IF NOT EXISTS `lastmessages` " +
+                    "(`guildname` TEXT NULL DEFAULT NULL, `guildid` TEXT NULL DEFAULT NULL, `channelid` TEXT NULL DEFAULT NULL, `message` TEXT NULL DEFAULT NULL, `authorid` TEXT NULL DEFAULT NULL)", async (error, response) => {
                     if (response.affectedRows > 0) {
                         await Globals.loggerInstance.complete("Table creation sucessful.")
                     } else {

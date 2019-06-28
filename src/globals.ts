@@ -8,6 +8,7 @@ import {ICommand} from "./command/command";
 
 export interface ICollectedMessage {
     author: string;
+    channelId: string;
     content: string;
 }
 

@@ -8,7 +8,7 @@ import {Globals} from "../../globals";
 export default class SlowmodeCommand implements ICommand {
 
     constructor() {
-        this.description = "Sets slowmode for the guild.";
+        this.description = "Sets slowmode for channel where invoked.";
         this.syntax = "slowmode";
         this.args = "[slowmodeValue: number]";
     }

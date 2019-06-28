@@ -14,12 +14,14 @@ export default class MessageEvent implements IEvent {
     async override(client, message): Promise<void> {
         if (message.author.bot) return;
 
-        const collectedMessage: ICollectedMessage = {author: message.author.username, content: message.content};
-        Globals.collectedMessages.push(collectedMessage);
-
-        if (Globals.collectedMessages.length > 50) {
-            Globals.collectedMessages.shift();
-        }
+        await Globals.databaseConnection.query(`INSERT INTO lastmessages (guildname, guildid, channelid, message, authorid) VALUES ('${message.guild.name}',  
+                                                            '${message.guild.id}', '${message.channel.id}', '${message.content}', '${message.author.id}');`, async (error, response) => {
+            await Globals.databaseConnection.query(`SELECT * FROM lastmessages WHERE guildid='${message.guild.id}'`, async (error, response) => {
+                if (response.length > 20) {
+                    Globals.databaseConnection.query(`DELETE FROM lastmessages WHERE guildid='${message.guild.id}' LIMIT 1`);
+                }
+            });
+        });
 
         await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
             for (const guildConfiguration of response) {

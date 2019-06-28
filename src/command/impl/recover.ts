@@ -20,12 +20,14 @@ export default class RecoverCommand implements ICommand {
         try {
             if (!Checks.permissionCheck(message, "MANAGE_MESSAGES")) return;
 
-            let temp: string[] = [];
-            for (const collectedMessage of Globals.collectedMessages) {
-                await temp.push(`\`${collectedMessage.author}\` - ${collectedMessage.content}`);
-            }
-
-            await Announcements.info(message, "Last messages. (up to 50)", temp.join("\n"));
+            await Globals.databaseConnection.query(`SELECT * FROM lastmessages WHERE channelid='${message.channel.id}'`, async (error, response) => {
+                var temp: string[] = [];
+                for(let i = 0; i < response.length; i++) {
+                    if (response[i].channelid == message.channel.id && response[i].guildid == message.guild.id)
+                        temp.push(`[${message.guild.members.get(response[i].authorid).user.tag}] - ${response[i].message}`);
+                }
+                await Announcements.info(message, "Last messages. (up to 20)", `\`\`\`${temp.join("\n")}\`\`\``);
+            });
 
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
