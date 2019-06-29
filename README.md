@@ -41,7 +41,8 @@ NOTE: You also have to install [MariaDB](https://mariadb.org/) on your host serv
 [mariadb-connector-nodejs](https://github.com/MariaDB/mariadb-connector-nodejs) - MariaDB Connector/Node.js is used to connect applications developed on Node.js to MariaDB and MySQL databases.  
 [typescript](https://github.com/microsoft/TypeScript) - TypeScript is a superset of JavaScript that compiles to clean JavaScript output.  
 [ts-node](https://github.com/TypeStrong/ts-node) - TypeScript execution and REPL for node.js.  
-[bad-words](https://github.com/web-mech/badwords) - A javascript filter for badwords.
+[bad-words](https://github.com/web-mech/badwords) - A javascript filter for badwords.  
+[moment](https://github.com/moment/moment/) - Parse, validate, manipulate, and display dates in javascript.
 
 #### Disclaimer
 This project:

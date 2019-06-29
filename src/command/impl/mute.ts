@@ -1,4 +1,5 @@
-import * as Discord from "discord.js"
+import * as Discord from "discord.js";
+import * as moment from "moment";
 
 import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
@@ -51,9 +52,31 @@ export default class MuteCommand implements ICommand {
             await memberToMute.addRole(muteRole);
 
             if (args[2]) {
-                setTimeout(async () => {
-                    await memberToMute.removeRole(muteRole.id);
-                }, parseInt(args[2]) * 1000 * 60);
+                const now: Date = new Date();
+                await Globals.databaseConnection.query(`INSERT INTO mutedusers (guildname, guildid, userid, muteroleid, datefrom, dateto) VALUES ('${message.guild.name}',  '${message.guild.id}', '${memberToMute.id}', '${muteRole.id}', '${now}', '${moment(now).add(parseInt(args[2]), "m").toString()}')`, (error, response) => {
+                    setTimeout(async () => {
+                        await Globals.databaseConnection.query(`DELETE FROM mutedusers WHERE userid='${memberToMute.id}' LIMIT 1`);
+                        await memberToMute.removeRole(muteRole.id);
+
+                        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
+                            for (const guildConfiguration of response) {
+                                if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+
+                                    const embed = new Discord.RichEmbed()
+                                        .setColor(0x161616)
+                                        .setAuthor(memberToMute.user.tag, memberToMute.user.avatarURL)
+                                        .setTitle(`Member unmute detected.`)
+                                        .addField("Mute time elapsed.", `automatic unmute`)
+                                        .setFooter("🔑 Gatekeeper moderation")
+                                        .setTimestamp(new Date());
+
+                                    // @ts-ignore
+                                    await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                                }
+                            }
+                        });
+                    }, parseInt(args[2]) * 1000 * 60);
+                });
             }
 
             await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
