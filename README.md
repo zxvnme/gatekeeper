@@ -38,8 +38,8 @@ NOTE: You also have to install [MariaDB](https://mariadb.org/) on your host serv
 ### Used libraries/tools/etc
 [discord.js](https://github.com/discordjs/discord.js/) - A powerful JavaScript library for interacting with the Discord API.   
 [signale](https://github.com/klaussinani/signale) - Highly configurable logging utility.  
-[mariadb-connector-nodejs](https://github.com/MariaDB/mariadb-connector-nodejs) - MariaDB Connector/Node.js is used to connect applications developed on Node.js to MariaDB and MySQL databases.  
 [typescript](https://github.com/microsoft/TypeScript) - TypeScript is a superset of JavaScript that compiles to clean JavaScript output.  
+[typeorm](https://github.com/typeorm/typeorm) - ORM for TypeScript and JavaScript.  
 [ts-node](https://github.com/TypeStrong/ts-node) - TypeScript execution and REPL for node.js.  
 [bad-words](https://github.com/web-mech/badwords) - A javascript filter for badwords.  
 [moment](https://github.com/moment/moment/) - Parse, validate, manipulate, and display dates in javascript.
