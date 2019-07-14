@@ -1,7 +1,9 @@
 import * as Discord from "discord.js"
 
+import {getRepository} from "typeorm";
+
 import {IEvent} from "../event";
-import {Globals} from "../../globals";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
 
 export default class GuildMemberAddEvent implements IEvent {
     constructor() {
@@ -11,9 +13,11 @@ export default class GuildMemberAddEvent implements IEvent {
     name: string;
 
     async override(client, member): Promise<void> {
-        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
-            for (const guildConfiguration of response) {
-                if ((member.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+        const guildConfigurationsRepository = getRepository(GuildConfiguration);
+
+        guildConfigurationsRepository.find({where: {guildID: member.guild.id}}).then(configuration => {
+            for (const guildConfiguration of configuration) {
+                if ((guildConfiguration.guildID == member.guild.id) && guildConfiguration.logsChannelID != "none") {
 
                     const embed = new Discord.RichEmbed()
                         .setColor(0x55efc4)
@@ -23,7 +27,7 @@ export default class GuildMemberAddEvent implements IEvent {
                         .setFooter("🔑 Gatekeeper moderation")
                         .setTimestamp(new Date());
 
-                    await client.channels.get(guildConfiguration.logschannelid).send(embed);
+                    client.channels.get(guildConfiguration.logsChannelID).send(embed);
                 }
             }
         });

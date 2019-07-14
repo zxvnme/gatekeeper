@@ -1,8 +1,11 @@
 import * as Discord from "discord.js"
 
+import {getRepository} from "typeorm";
+
 import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
 import {Globals} from "../../globals";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
 
 export default class BanCommand implements ICommand {
 
@@ -30,9 +33,11 @@ export default class BanCommand implements ICommand {
                 reason: `${args.join(" ")} (command invoked by: ${message.author.tag})`
             });
 
-            await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
-                for (const guildConfiguration of response) {
-                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+            const guildConfigurationsRepository = getRepository(GuildConfiguration);
+
+            guildConfigurationsRepository.find({where: {guildID: message.guild.id}}).then(configuration => {
+                for (const guildConfiguration of configuration) {
+                    if ((guildConfiguration.guildID == message.guild.id) && guildConfiguration.logsChannelID != "none") {
 
                         const embed = new Discord.RichEmbed()
                             .setColor(0xff7675)
@@ -46,10 +51,11 @@ export default class BanCommand implements ICommand {
                             .setTimestamp(new Date());
 
                         // @ts-ignore
-                        await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                        clientInstance.channels.get(guildConfiguration.logsChannelID).send(embed);
                     }
                 }
             });
+
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
         }

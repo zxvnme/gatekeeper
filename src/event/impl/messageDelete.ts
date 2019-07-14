@@ -1,7 +1,9 @@
 import * as Discord from "discord.js"
 
+import {getRepository} from "typeorm";
+
 import {IEvent} from "../event";
-import {Globals} from "../../globals";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
 
 export default class MessageDeleteEvent implements IEvent {
     constructor() {
@@ -14,9 +16,11 @@ export default class MessageDeleteEvent implements IEvent {
         if (message.author == client.user) return;
         if (message.author.bot) return;
 
-        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
-            for (const guildConfiguration of response) {
-                if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+        const guildConfigurationsRepository = getRepository(GuildConfiguration);
+
+        guildConfigurationsRepository.find({where: {guildID: message.guild.id}}).then(configuration => {
+            for (const guildConfiguration of configuration) {
+                if ((guildConfiguration.guildID == message.guild.id) && guildConfiguration.logsChannelID != "none") {
 
                     const embed = new Discord.RichEmbed()
                         .setColor(0xff7675)
@@ -27,7 +31,7 @@ export default class MessageDeleteEvent implements IEvent {
                         .setFooter("🔑 Gatekeeper moderation")
                         .setTimestamp(new Date());
 
-                    await client.channels.get(guildConfiguration.logschannelid).send(embed);
+                    client.channels.get(guildConfiguration.logsChannelID).send(embed);
                 }
             }
         });

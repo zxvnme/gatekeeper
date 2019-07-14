@@ -4,6 +4,8 @@ import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
 import {Announcements} from "../../utils/announcements";
 import {Globals} from "../../globals";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
+import {getRepository} from "typeorm";
 
 export default class FilterCommand implements ICommand {
 
@@ -23,6 +25,8 @@ export default class FilterCommand implements ICommand {
 
             if (!Checks.argsCheck(message, this, args)) return;
 
+            const guildConfigurationsRepository = getRepository(GuildConfiguration);
+
             const filterState: number = await parseInt(args[1]);
 
             if ((filterState > 1 || filterState < 0) || isNaN(filterState)) {
@@ -30,9 +34,13 @@ export default class FilterCommand implements ICommand {
                 return;
             }
 
-            await Globals.databaseConnection.query(`UPDATE guildconfiguration SET filter=${filterState} WHERE guildid=${message.guild.id}`);
-
-            await Announcements.success(message, `Successfully ${(filterState == 1) ? "enabled" : "disabled"} bad words filter on this server.`);
+            guildConfigurationsRepository.createQueryBuilder().update(GuildConfiguration).set({
+                profanityChecker: filterState
+            }).where("guildID = :guildID", {
+                guildID: message.guild.id
+            }).execute().then(() => {
+                Announcements.success(message, `Successfully ${(filterState == 1) ? "enabled" : "disabled"} bad words filter on this server.`);
+            });
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
         }

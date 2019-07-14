@@ -4,6 +4,8 @@ import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
 import {Announcements} from "../../utils/announcements";
 import {Globals} from "../../globals";
+import {getRepository} from "typeorm";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
 
 export default class UnlockCommand implements ICommand {
 
@@ -35,9 +37,11 @@ export default class UnlockCommand implements ICommand {
                 {"SEND_MESSAGES": true},
             );
 
-            await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
-                for (const guildConfiguration of response) {
-                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+            const guildConfigurationsRepository = getRepository(GuildConfiguration);
+
+            guildConfigurationsRepository.find({where: {guildID: message.guild.id}}).then(configuration => {
+                for (const guildConfiguration of configuration) {
+                    if ((guildConfiguration.guildID == message.guild.id) && guildConfiguration.logsChannelID != "none") {
 
                         const embed = new Discord.RichEmbed()
                             .setColor(0x74b9ff)
@@ -48,7 +52,7 @@ export default class UnlockCommand implements ICommand {
                             .setTimestamp(new Date());
 
                         // @ts-ignore
-                        await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                        clientInstance.channels.get(guildConfiguration.logsChannelID).send(embed);
                     }
                 }
             });

@@ -2,6 +2,8 @@ import * as Discord from "discord.js"
 
 import {IEvent} from "../event";
 import {Globals} from "../../globals";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
+import {getRepository} from "typeorm";
 
 export default class GuildCreateEvent implements IEvent {
     constructor() {
@@ -11,7 +13,13 @@ export default class GuildCreateEvent implements IEvent {
     name: string;
 
     async override(client, guild): Promise<void> {
-        await Globals.databaseConnection.query("INSERT INTO guildconfiguration(guildid, logschannelid, filter) value (?, ?, ?)", [guild.id, "none", 0]);
+
+        const guildConfiguration = new GuildConfiguration();
+        guildConfiguration.guildID = guild.id;
+        guildConfiguration.logsChannelID = "none";
+        guildConfiguration.profanityChecker = 0;
+
+        await getRepository(GuildConfiguration).save(guildConfiguration);
 
         const embed = new Discord.RichEmbed()
             .setThumbnail(Globals.clientInstance.user.avatarURL)

@@ -1,8 +1,12 @@
 import * as Discord from "discord.js"
 
+import {getRepository} from "typeorm";
+
 import {IEvent} from "../event";
 import {Globals} from "../../globals";
 import {Announcements} from "../../utils/announcements";
+import {LastMessage} from "../../entity/lastMessage";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
 
 export default class MessageEvent implements IEvent {
     constructor() {
@@ -14,24 +18,36 @@ export default class MessageEvent implements IEvent {
     async override(client, message): Promise<void> {
         if (message.author.bot) return;
 
-        await Globals.databaseConnection.query(`INSERT INTO lastmessages (guildname, guildid, channelid, message, authorid) VALUES ('${message.guild.name}',  
-                                                            '${message.guild.id}', '${message.channel.id}', '${message.content}', '${message.author.id}');`, async (error, response) => {
-            await Globals.databaseConnection.query(`SELECT * FROM lastmessages WHERE guildid='${message.guild.id}'`, async (error, response) => {
-                if (response.length > 20) {
-                    Globals.databaseConnection.query(`DELETE FROM lastmessages WHERE guildid='${message.guild.id}' LIMIT 1`);
+        const lastMessagesRepository = getRepository(LastMessage);
+        const guildConfigurationsRepository = getRepository(GuildConfiguration);
+
+        const lastMessage = new LastMessage();
+
+        lastMessage.guildName = message.guild.name;
+        lastMessage.guildID = message.guild.id;
+        lastMessage.channelID = message.channel.id;
+        lastMessage.messageContent = message.content;
+        lastMessage.authorID = message.author.id;
+
+        lastMessagesRepository.save(lastMessage).then(() => {
+            lastMessagesRepository.find({
+                where: {
+                    guildID: message.guild.id,
+                    channelID: message.channel.id
                 }
+            }).then(async cachedMessages => {
+                if (cachedMessages.length > 20)
+                    await lastMessagesRepository.remove(cachedMessages[0]); // Remove first element.
             });
         });
 
-        await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
-            for (const guildConfiguration of response) {
-                if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.filter == 1) {
+        guildConfigurationsRepository.find({where: {guildID: message.guild.id}}).then(async configuration => {
+            for (const guildConfiguration of configuration)
+                if (guildConfiguration.profanityChecker === 1)
                     if (Globals.filterInstance.isProfane(message.content)) {
                         await message.delete();
                         await Announcements.warning(message, `${message.author.username}, you've used one of the bad words! Keep your language nice...`, undefined, true)
                     }
-                }
-            }
         });
 
         if (!message.content.startsWith(Globals.config.defaultPrefix)) return;

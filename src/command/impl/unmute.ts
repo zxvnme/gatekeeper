@@ -3,6 +3,8 @@ import * as Discord from "discord.js"
 import {ICommand} from "../command";
 import {Checks} from "../../utils/checks";
 import {Globals} from "../../globals";
+import {getRepository} from "typeorm";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
 
 export default class UnmuteCommand implements ICommand {
 
@@ -27,9 +29,11 @@ export default class UnmuteCommand implements ICommand {
 
             await memberToUnmute.removeRole(muteRole);
 
-            await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
-                for (const guildConfiguration of response) {
-                    if ((message.guild.id == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+            const guildConfigurationsRepository = getRepository(GuildConfiguration);
+
+            guildConfigurationsRepository.find({where: {guildID: message.guild.id}}).then(configuration => {
+                for (const guildConfiguration of configuration) {
+                    if ((guildConfiguration.guildID == message.guild.id) && guildConfiguration.logsChannelID != "none") {
 
                         const embed = new Discord.RichEmbed()
                             .setColor(0x161616)
@@ -40,7 +44,7 @@ export default class UnmuteCommand implements ICommand {
                             .setTimestamp(new Date());
 
                         // @ts-ignore
-                        await clientInstance.channels.get(guildConfiguration.logschannelid).send(embed);
+                        clientInstance.channels.get(guildConfiguration.logsChannelID).send(embed);
                     }
                 }
             });

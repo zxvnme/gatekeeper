@@ -1,7 +1,8 @@
-import * as moment from "moment";
-
 import {IEvent} from "../event";
 import {Globals} from "../../globals";
+import {getRepository} from "typeorm";
+import {MutedUser} from "../../entity/mutedUser";
+import {GuildConfiguration} from "../../entity/guildConfiguration";
 import * as Discord from "discord.js";
 
 export default class ReadyEvent implements IEvent {
@@ -14,33 +15,34 @@ export default class ReadyEvent implements IEvent {
     async override(client): Promise<void> {
         await Globals.loggerInstance.success(`I am ready! ${client.user.tag}`);
 
-        await Globals.databaseConnection.query(`SELECT * FROM mutedusers`, async (error, response) => {
-            for (const mute of response) {
-                if (Date.parse(new Date().toString()) >= Date.parse(mute.dateto)) {
-                    await client.guilds.get(mute.guildid).members.get(mute.userid).removeRole(client.guilds.get(mute.guildid).roles.get(mute.muteroleid));
-                    await Globals.databaseConnection.query(`DELETE FROM mutedusers WHERE userid='${mute.userid}' LIMIT 1`);
+        const mutedUsersRepository = getRepository(MutedUser);
+        const guildConfigurationsRepository = getRepository(GuildConfiguration);
 
-                    await Globals.databaseConnection.query("SELECT * from guildconfiguration", async (error, response, meta) => {
-                        for (const guildConfiguration of response) {
-                            if ((mute.guildid == guildConfiguration.guildid) && guildConfiguration.logschannelid != "none") {
+        mutedUsersRepository.find().then(async mutedUsers => {
+            for (const muted of mutedUsers) {
+                if (Date.parse(new Date().toString()) >= Date.parse(muted.dateTo)) {
+                    await client.guilds.get(muted.guildID).members.get(muted.userID).removeRole(client.guilds.get(muted.guildID).roles.get(muted.muteRoleID));
+                    await mutedUsersRepository.remove(muted);
+
+                    guildConfigurationsRepository.find({where: {guildID: muted.guildID}}).then(configuration => {
+                        for (const guildConfiguration of configuration) {
+                            if ((guildConfiguration.guildID == muted.guildID) && guildConfiguration.logsChannelID != "none") {
 
                                 const embed = new Discord.RichEmbed()
                                     .setColor(0x161616)
-                                    .setAuthor(client.guilds.get(mute.guildid).members.get(mute.userid).user.tag, client.guilds.get(mute.guildid).members.get(mute.userid).user.avatarURL)
+                                    .setAuthor(client.guilds.get(muted.guildID).members.get(muted.userID).user.tag, client.guilds.get(muted.guildID).members.get(muted.userID).user.avatarURL)
                                     .setTitle(`Member unmute detected.`)
                                     .addField("Mute time elapsed.", `automatic unmute`)
                                     .setFooter("🔑 Gatekeeper moderation")
                                     .setTimestamp(new Date());
 
                                 // @ts-ignore
-                                await client.channels.get(guildConfiguration.logschannelid).send(embed);
+                                client.channels.get(guildConfiguration.logsChannelID).send(embed);
                             }
                         }
                     });
                 }
             }
-            //const memberToMute = client.guilds.get(response.guildid,)
-            //
         });
     }
 }

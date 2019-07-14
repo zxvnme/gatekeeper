@@ -4,6 +4,8 @@ import {ICommand} from "../command";
 import {Announcements} from "../../utils/announcements";
 import {Globals} from "../../globals";
 import {Checks} from "../../utils/checks";
+import {getRepository} from "typeorm";
+import {LastMessage} from "../../entity/lastMessage";
 
 export default class RecoverCommand implements ICommand {
     constructor() {
@@ -20,13 +22,18 @@ export default class RecoverCommand implements ICommand {
         try {
             if (!Checks.permissionCheck(message, "MANAGE_MESSAGES")) return;
 
-            await Globals.databaseConnection.query(`SELECT * FROM lastmessages WHERE guildid='${message.guild.id}' AND channelid='${message.channel.id}'`, async (error, response) => {
-                var temp: string[] = [];
-                for(let i = 0; i < response.length; i++) {
-                    if (response[i].channelid == message.channel.id && response[i].guildid == message.guild.id)
-                        temp.push(`[${message.guild.members.get(response[i].authorid).user.tag}] - ${response[i].message}`);
+            getRepository(LastMessage).find({
+                where: {
+                    guildID: message.guild.id,
+                    channelID: message.channel.id
                 }
-                await Announcements.info(message, `Last messages for ${message.channel} (up to 20)`, `\`\`\`${temp.join("\n")}\`\`\``);
+            }).then(recoveredMessages => {
+                let temp: string[] = [];
+                for (const recoveredMessage of recoveredMessages)
+                    if (recoveredMessage.channelID == message.channel.id && recoveredMessage.guildID == message.guild.id)
+                        temp.push(`[${message.guild.members.get(recoveredMessage.authorID).user.tag}] - ${recoveredMessage.messageContent}`);
+
+                Announcements.info(message, `Last messages for ${message.channel} (up to 20)`, `\`\`\`${temp.join("\n")}\`\`\``);
             });
 
         } catch (error) {
