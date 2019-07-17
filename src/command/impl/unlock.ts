@@ -57,7 +57,7 @@ export default class UnlockCommand implements ICommand {
                 }
             });
 
-            await Announcements.success(message, "Channel unlock", `Successfully unlocked <#${message.guild.channels.get(lockedChannelID).name}> channel.`, true);
+            await Announcements.success(message, "Channel unlock", `Successfully unlocked <#${message.guild.channels.get(lockedChannelID).id}> channel.`, true);
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
         }

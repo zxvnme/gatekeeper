@@ -33,7 +33,7 @@ export default class RecoverCommand implements ICommand {
                     if (recoveredMessage.channelID == message.channel.id && recoveredMessage.guildID == message.guild.id)
                         temp.push(`[${message.guild.members.get(recoveredMessage.authorID).user.tag}] - ${recoveredMessage.messageContent}`);
 
-                Announcements.info(message, `Last messages for ${message.channel} (up to 20)`, `\`\`\`${temp.join("\n")}\`\`\``);
+                Announcements.info(message, `Recovering complete.`, `Last messages for  \`\`\`${temp.join("\n")}\`\`\``);
             });
 
         } catch (error) {
