@@ -1,6 +1,7 @@
 import * as Discord from "discord.js"
 
 enum Colors {
+    TRANSPARENT = 0x36393f,
     BAD_RED = 0xff7675,
     GOOD_GREEN = 0x55efc4,
     WARNING_YELLOW = 0xfdcb6e,
@@ -61,7 +62,7 @@ export class Announcements {
     }
 
     public static info(discordMessageInstance: Discord.Message, title: string, description?: string, deleteAfter?: boolean) {
-        const embed = new Discord.RichEmbed().setColor(Colors.INFO_LIGHTBLUE).setTitle(`🛈️️ ${title}`);
+        const embed = new Discord.RichEmbed().setColor(Colors.TRANSPARENT).setTitle(`🛈️️ ${title}`);
 
         if (description) {
             embed.setDescription(description);
