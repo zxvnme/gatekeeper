@@ -5,6 +5,7 @@
   "username": "root",
   "password": "root",
   "database": "gatekeeper",
+  "charset": "utf8mb4",
   "synchronize": true,
   "logging": false,
   "entities": [

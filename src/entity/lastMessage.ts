@@ -15,7 +15,7 @@ export class LastMessage {
     @Column()
     channelID: string;
 
-    @Column()
+    @Column({charset: `utf8mb4`})
     messageContent: string;
 
     @Column()

@@ -27,7 +27,7 @@ export default class MessageEvent implements IEvent {
         lastMessage.guildName = message.guild.name;
         lastMessage.guildID = message.guild.id;
         lastMessage.channelID = message.channel.id;
-        lastMessage.messageContent = /`/g.test(messageToCache) ?  messageToCache.replace(/`/g, ``) : messageToCache;
+        lastMessage.messageContent = /`/g.test(messageToCache) ? messageToCache.replace(/`/g, ``) : messageToCache;
         lastMessage.authorID = message.author.id;
 
         lastMessagesRepository.save(lastMessage).then(() => {
