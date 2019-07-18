@@ -1,5 +1,5 @@
 <div align="center">
-<img width="256", height="128" src="resources/logo.png" alt="Gatekeeper logo">
+<img width="256", height="256" src="resources/logo.png" alt="Gatekeeper logo">
 <h4>Discord moderation bot</h4>
 
 [![forthebadge](https://forthebadge.com/images/badges/check-it-out.svg)](https://forthebadge.com)
