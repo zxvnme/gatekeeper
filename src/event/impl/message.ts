@@ -21,12 +21,13 @@ export default class MessageEvent implements IEvent {
         const lastMessagesRepository = getRepository(LastMessage);
         const guildConfigurationsRepository = getRepository(GuildConfiguration);
 
+        let messageToCache = message.content;
         const lastMessage = new LastMessage();
 
         lastMessage.guildName = message.guild.name;
         lastMessage.guildID = message.guild.id;
         lastMessage.channelID = message.channel.id;
-        lastMessage.messageContent = message.content;
+        lastMessage.messageContent = /`/g.test(messageToCache) ?  messageToCache.replace(/`/g, ``) : messageToCache;
         lastMessage.authorID = message.author.id;
 
         lastMessagesRepository.save(lastMessage).then(() => {
