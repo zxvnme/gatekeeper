@@ -34,6 +34,8 @@ export default class MuteCommand implements ICommand {
             const guildConfigurationsRepository = getRepository(GuildConfiguration);
             const memberToMute = await message.mentions.members.first();
 
+            if (!Checks.ableToManage(message, memberToMute)) return;
+
             let muteRole: Discord.Role = await message.guild.roles.find(role => role.name == "Muted");
 
             if (!muteRole) {

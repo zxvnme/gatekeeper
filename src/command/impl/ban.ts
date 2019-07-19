@@ -26,6 +26,9 @@ export default class BanCommand implements ICommand {
             if (!Checks.argsCheck(message, this, args)) return;
 
             const memberToBan = await message.mentions.members.first();
+
+            if (!Checks.ableToManage(message, memberToBan)) return;
+
             const daysToDelete: number = await parseInt(args[2]);
             await args.splice(0, 3);
             await memberToBan.ban({

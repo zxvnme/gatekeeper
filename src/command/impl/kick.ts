@@ -25,6 +25,9 @@ export default class KickCommand implements ICommand {
             if (!Checks.argsCheck(message, this, args)) return;
 
             const memberToKick = await message.mentions.members.first();
+
+            if (!Checks.ableToManage(message, memberToKick)) return;
+
             await args.splice(0, 2);
             await memberToKick.kick(`${args.join(" ")} (command invoked by: ${message.author.tag})`);
 

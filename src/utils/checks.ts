@@ -9,6 +9,18 @@ export class Checks {
             Announcements.error(discordMessageInstance, "You dont have permissions for that", undefined, true);
             return false;
         }
+
+        return true;
+    }
+
+    public static ableToManage(discordMessageInstance: Discord.Message, member: Discord.GuildMember): boolean {
+        if ((member.highestRole.position >= discordMessageInstance.member.highestRole.position)
+            || member.user.id === discordMessageInstance.guild.ownerID
+            || !(member.kickable || member.bannable || member.manageable)) {
+            Announcements.error(discordMessageInstance, "I can't do that", undefined, true);
+            return false;
+        }
+
         return true;
     }
 
