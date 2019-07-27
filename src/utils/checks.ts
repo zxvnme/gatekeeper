@@ -14,6 +14,9 @@ export class Checks {
     }
 
     public static ableToManage(discordMessageInstance: Discord.Message, member: Discord.GuildMember): boolean {
+        if (discordMessageInstance.author.id === discordMessageInstance.guild.ownerID)
+            return true;
+
         if ((member.highestRole.position >= discordMessageInstance.member.highestRole.position)
             || member.user.id === discordMessageInstance.guild.ownerID
             || !(member.kickable || member.bannable || member.manageable)) {
