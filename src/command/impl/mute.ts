@@ -115,6 +115,8 @@ export default class MuteCommand implements ICommand {
                         clientInstance.channels.get(guildConfiguration.logsChannelID).send(embed);
                     }
                 }
+            }).then(() => {
+                Announcements.success(message, `Successfully muted`, `<@${memberToMute.user.id}>.`);
             });
         } catch (error) {
             await Globals.loggerInstance.fatal(error);

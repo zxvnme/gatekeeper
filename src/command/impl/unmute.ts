@@ -5,6 +5,7 @@ import {Checks} from "../../utils/checks";
 import {Globals} from "../../globals";
 import {getRepository} from "typeorm";
 import {GuildConfiguration} from "../../entity/guildConfiguration";
+import {Announcements} from "../../utils/announcements";
 
 export default class UnmuteCommand implements ICommand {
 
@@ -47,6 +48,8 @@ export default class UnmuteCommand implements ICommand {
                         clientInstance.channels.get(guildConfiguration.logsChannelID).send(embed);
                     }
                 }
+            }).then(() => {
+                Announcements.success(message, `Successfully unmuted`, `<@${memberToUnmute.user.id}>.`);
             });
         } catch (error) {
             await Globals.loggerInstance.fatal(error);
