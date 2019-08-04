@@ -58,6 +58,12 @@ Mutes guild member.
 Removes mute from guild member.
 * `[memberToUnmute]` (Mention)
   * example: **g!unmute  @zxvnme#2598**
+
+#### userinfo
+Gets info about user.
+* *optional:* `[user]` (Mention)
+  * example: **g!userinfo  @zxvnme#2598**
+  * example: **g!userinfo** // will get info about user who invoked command
   
 #### ping
 Returns message with average ping of the websocket.
